@@ -1,0 +1,56 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mongodb:
+        image: mongo:latest
+        ports:
+          - 27017:27017
+        options: --health-cmd "mongo --eval 'db.adminCommand('ping')'" --health-interval 10s --health-timeout 5s --health-retries 5
+
+    env:
+      DATABASE_URL: mongodb://localhost:27017/testdb
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Ensure you set this to the Node.js version required by your project
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Wait for MongoDB to be ready
+        run: |
+          for i in {30..0}; do
+            nc -z localhost 27017 && break
+            echo 'Waiting for MongoDB...'
+            sleep 1
+          done
+          if [ "$i" = 0 ]; then
+            echo 'MongoDB did not start in time' >&2
+            exit 1
+          fi
+
+      - name: Run tests
+        run: npm run test
+
+      - name: Build project
+        run: npm run build
+
+      - name: Lint project
+        run: npm run lint
