@@ -12,18 +12,6 @@ jobs:
   build:
     runs-on: ubuntu-latest
 
-    services:
-      mongodb:
-        image: mongo:latest
-        options: >
-          --health-cmd "mongo --eval 'db.runCommand({ping: 1})'"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-
-    env:
-      MONGO_URL: mongodb://localhost:27017/testdb
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -36,18 +24,6 @@ jobs:
       - name: Install dependencies
         run: npm install
 
-      - name: Wait for MongoDB to be ready
-        run: |
-          for i in {60..0}; do
-            nc -zv localhost 27017 && break
-            echo 'Waiting for MongoDB...'
-            sleep 2
-          done
-          if [ "$i" = 0 ]; then
-            echo 'MongoDB did not start in time' >&2
-            exit 1
-          fi
-
       - name: Run tests
         run: npm run test
 
@@ -56,7 +32,3 @@ jobs:
 
       - name: Lint project
         run: npm run lint
-
-      - name: Output MongoDB logs for debugging
-        if: failure()
-        run: docker logs $(docker ps -q --filter ancestor=mongo:latest)
