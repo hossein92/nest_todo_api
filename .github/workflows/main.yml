@@ -15,12 +15,17 @@ jobs:
     services:
       mongodb:
         image: mongo:latest
-        options: >-
-          --name mongodb
+        ports:
+          - 27017:27017
+        options: >
           --health-cmd "mongo --eval 'db.runCommand({ping: 1})'"
           --health-interval 10s
-          --health-timeout 10s
-          --health-retries 10
+          --health-timeout 5s
+          --health-retries 5
+        resources:
+          limits:
+            memory: 1g
+            cpus: 2
 
     env:
       MONGO_URL: mongodb://localhost:27017/testdb
@@ -32,7 +37,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '16'
+          node-version: '18.14.2'  # Ensure you set this to the Node.js version required by your project
 
       - name: Install dependencies
         run: npm install
@@ -40,13 +45,13 @@ jobs:
       - name: Wait for MongoDB to be ready
         run: |
           for i in {60..0}; do
-            nc -z localhost 27017 && break
+            nc -zv localhost 27017 && break
             echo 'Waiting for MongoDB...'
             sleep 2
           done
           if [ "$i" = 0 ]; then
             echo 'MongoDB did not start in time' >&2
-            docker logs mongodb
+            docker logs $(docker ps -q --filter ancestor=mongo:latest)
             exit 1
           fi
 
@@ -61,4 +66,4 @@ jobs:
 
       - name: Output MongoDB logs for debugging
         if: failure()
-        run: docker logs mongodb
+        run: docker logs $(docker ps -q --filter ancestor=mongo:latest)
