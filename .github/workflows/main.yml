@@ -17,7 +17,7 @@ jobs:
         image: mongo:latest
         ports:
           - 27017:27017
-        options: --health-cmd "mongo --eval 'db.runCommand({ping: 1})'" --health-interval 10s --health-timeout 5s --health-retries 5
+        options: --health-cmd "mongo --eval 'db.adminCommand('ping')'" --health-interval 10s --health-timeout 5s --health-retries 5
 
     env:
       MONGO_URL: mongodb://localhost:27017/testdb
@@ -39,7 +39,7 @@ jobs:
           for i in {30..0}; do
             nc -z localhost 27017 && break
             echo 'Waiting for MongoDB...'
-            sleep 2
+            sleep 1
           done
           if [ "$i" = 0 ]; then
             echo 'MongoDB did not start in time' >&2
@@ -54,7 +54,3 @@ jobs:
 
       - name: Lint project
         run: npm run lint
-
-      - name: Output MongoDB logs for debugging
-        if: failure()
-        run: docker logs $(docker ps -q --filter ancestor=mongo:latest)
