@@ -15,8 +15,6 @@ jobs:
     services:
       mongodb:
         image: mongo:latest
-        ports:
-          - 27017:27017
         options: >
           --health-cmd "mongo --eval 'db.runCommand({ping: 1})'"
           --health-interval 10s
@@ -33,7 +31,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '18'  # Ensure you set this to the Node.js version required by your project
+          node-version: '16'  # Ensure you set this to the Node.js version required by your project
 
       - name: Install dependencies
         run: npm install
