@@ -17,8 +17,10 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiTags,
 } from '@nestjs/swagger';
 
+@ApiTags('Todos')
 @Controller('todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
