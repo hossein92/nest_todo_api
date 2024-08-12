@@ -9,6 +9,7 @@ import {
   UsePipes,
   ValidationPipe,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -52,8 +53,25 @@ export class TodosController {
     description: 'The Todo were successfully obtained.',
     type: [Todo],
   })
-  async findAll(@GetUser() user: User): Promise<Todo[]> {
-    return this.todosService.findAll(user);
+  @Get()
+  async findAll(
+    @GetUser() user: User,
+    @Query('page') page: number = 1,
+    @Query('limit') limit: number = 10,
+  ) {
+    const result = await this.todosService.findAll(user, page, limit);
+    const nextPage = page < result.totalPages ? +page + 1 : null;
+    const previousPage = page > 1 ? +page - 1 : null;
+
+    return {
+      todos: result.todos,
+      total: result.total,
+      totalPages: result.totalPages,
+      page,
+      limit,
+      nextPage,
+      previousPage,
+    };
   }
 
   @Get(':id')

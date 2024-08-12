@@ -18,8 +18,19 @@ export class TodosService {
     return createTodo.save();
   }
 
-  async findAll(user: User): Promise<Todo[]> {
-    return this.todoModel.find({ user: user._id }).exec();
+  async findAll(
+    user: User,
+    page: number,
+    limit: number,
+  ): Promise<{ todos: Todo[]; total: number; totalPages: number }> {
+    const skip = (page - 1) * limit;
+
+    const [todos, total] = await Promise.all([
+      this.todoModel.find({ user: user._id }).skip(skip).limit(limit).exec(),
+      this.todoModel.countDocuments({ user: user._id }).exec(),
+    ]);
+    const totalPages = Math.ceil(total / limit);
+    return { todos, total, totalPages };
   }
 
   async findOne(id: string, user: User): Promise<Todo> {
