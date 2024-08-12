@@ -22,11 +22,32 @@ export class TodosService {
     user: User,
     page: number,
     limit: number,
+    status?: boolean,
+    startDate?: string,
+    endDate?: string,
   ): Promise<{ todos: Todo[]; total: number; totalPages: number }> {
+    // Build the query object based on filters
+
+    const query: any = { user: user._id };
+
+    if (status !== undefined) {
+      query.isCompleted = status;
+    }
+
+    if (startDate) {
+      query.createdAt = { $gte: new Date(startDate) };
+    }
+
+    if (endDate) {
+      query.createdAt = { ...query.createdAt, $lte: new Date(endDate) };
+    }
+
+    console.log(query);
+
     const skip = (page - 1) * limit;
 
     const [todos, total] = await Promise.all([
-      this.todoModel.find({ user: user._id }).skip(skip).limit(limit).exec(),
+      this.todoModel.find(query).skip(skip).limit(limit).exec(),
       this.todoModel.countDocuments({ user: user._id }).exec(),
     ]);
     const totalPages = Math.ceil(total / limit);

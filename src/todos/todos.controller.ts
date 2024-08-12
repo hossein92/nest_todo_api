@@ -10,6 +10,7 @@ import {
   ValidationPipe,
   UseGuards,
   Query,
+  BadRequestException,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -20,11 +21,15 @@ import {
   ApiCreatedResponse,
   ApiOkResponse,
   ApiOperation,
+  ApiQuery,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 import { GetUser } from 'src/auth/decorators/get-user.decorator';
 import { User } from 'src/users/schemas/user.schema';
+import { QueryTodosDto } from './dto/query-todos.dto';
+import { validate } from 'class-validator';
+import { plainToInstance } from 'class-transformer';
 
 @UseGuards(AuthGuard())
 @ApiBearerAuth('access-token')
@@ -53,13 +58,59 @@ export class TodosController {
     description: 'The Todo were successfully obtained.',
     type: [Todo],
   })
-  @Get()
-  async findAll(
-    @GetUser() user: User,
-    @Query('page') page: number = 1,
-    @Query('limit') limit: number = 10,
-  ) {
-    const result = await this.todosService.findAll(user, page, limit);
+  @ApiQuery({
+    name: 'page',
+    required: false,
+    description: 'Page number for pagination',
+    type: Number,
+    example: 1,
+  })
+  @ApiQuery({
+    name: 'limit',
+    required: false,
+    description: 'Number of todos per page',
+    type: Number,
+    example: 10,
+  })
+  @ApiQuery({
+    name: 'status',
+    required: false,
+    description:
+      'Filter by completion status (true for completed, false for incomplete)',
+    type: Boolean,
+  })
+  @ApiQuery({
+    name: 'startDate',
+    required: false,
+    description: 'Filter todos created on or after this date (YYYY-MM-DD)',
+    type: String,
+    example: '2024-01-01',
+  })
+  @ApiQuery({
+    name: 'endDate',
+    required: false,
+    description: 'Filter todos created on or before this date (YYYY-MM-DD)',
+    type: String,
+    example: '2024-08-12',
+  })
+  async findAll(@GetUser() user: User, @Query() query: QueryTodosDto) {
+    const queryObject = plainToInstance(QueryTodosDto, query);
+
+    const errors = await validate(queryObject);
+    if (errors.length > 0) {
+      throw new BadRequestException('Invalid query parameters');
+    }
+
+    const { page, limit, status, startDate, endDate } = queryObject;
+
+    const result = await this.todosService.findAll(
+      user,
+      page,
+      limit,
+      status,
+      startDate,
+      endDate,
+    );
     const nextPage = page < result.totalPages ? +page + 1 : null;
     const previousPage = page > 1 ? +page - 1 : null;
 
