@@ -9,7 +9,6 @@ import {
   UsePipes,
   ValidationPipe,
   UseGuards,
-  Req,
 } from '@nestjs/common';
 import { TodosService } from './todos.service';
 import { CreateTodoDto } from './dto/create-todo.dto';
@@ -23,15 +22,17 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
+import { GetUser } from 'src/auth/decorators/get-user.decorator';
+import { User } from 'src/users/schemas/user.schema';
 
+@UseGuards(AuthGuard())
+@ApiBearerAuth('access-token')
 @ApiTags('Todos')
 @Controller('todos')
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
   @Post()
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth('access-token')
   @ApiOperation({ description: 'Create a todo.' })
   @ApiCreatedResponse({
     description: 'The todo has been successfully created.',
@@ -40,26 +41,22 @@ export class TodosController {
   @UsePipes(new ValidationPipe({ transform: true }))
   async create(
     @Body() createTodoDto: CreateTodoDto,
-    @Req() req: any,
+    @GetUser() user: User,
   ): Promise<Todo> {
-    return this.todosService.create(createTodoDto, req.user);
+    return this.todosService.create(createTodoDto, user);
   }
 
   @Get()
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth('access-token')
   @ApiOperation({ description: 'Get all Todo' })
   @ApiOkResponse({
     description: 'The Todo were successfully obtained.',
     type: [Todo],
   })
-  async findAll(): Promise<Todo[]> {
-    return this.todosService.findAll();
+  async findAll(@GetUser() user: User): Promise<Todo[]> {
+    return this.todosService.findAll(user);
   }
 
   @Get(':id')
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth('access-token')
   @ApiOperation({
     description: 'Get a Todo by Id.',
   })
@@ -67,13 +64,11 @@ export class TodosController {
     description: 'The Todo was successfully obtained.',
     type: Todo,
   })
-  async findOne(@Param('id') id: string): Promise<Todo> {
-    return this.todosService.findOne(id);
+  async findOne(@Param('id') id: string, @GetUser() user: User): Promise<Todo> {
+    return this.todosService.findOne(id, user);
   }
 
   @Patch(':id')
-  @UseGuards(AuthGuard())
-  @ApiBearerAuth('access-token')
   @ApiOperation({
     description: 'Update a Todo by userId.',
   })
@@ -84,12 +79,13 @@ export class TodosController {
   async update(
     @Param('id') id: string,
     @Body() updateTodoDto: UpdateTodoDto,
+    @GetUser() user: User,
   ): Promise<Todo> {
-    return this.todosService.update(id, updateTodoDto);
+    return this.todosService.update(id, updateTodoDto, user);
   }
 
   @Delete(':id')
-  async remove(@Param('id') id: string): Promise<Todo> {
-    return this.todosService.remove(id);
+  async remove(@Param('id') id: string, @GetUser() user: User): Promise<Todo> {
+    return this.todosService.remove(id, user);
   }
 }
