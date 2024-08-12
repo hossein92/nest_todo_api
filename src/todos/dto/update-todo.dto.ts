@@ -1,6 +1,13 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateTodoDto } from './create-todo.dto';
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmpty,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { User } from 'src/users/schemas/user.schema';
 
 export class UpdateTodoDto extends PartialType(CreateTodoDto) {
   @IsString()
@@ -14,4 +21,7 @@ export class UpdateTodoDto extends PartialType(CreateTodoDto) {
   @IsBoolean()
   @IsOptional()
   readonly isCompleted?: boolean;
+
+  @IsEmpty({ message: 'you cannot pass user id' })
+  readonly user: User;
 }

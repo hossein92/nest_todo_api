@@ -1,5 +1,12 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { IsBoolean, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import {
+  IsBoolean,
+  IsEmpty,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from 'class-validator';
+import { User } from 'src/users/schemas/user.schema';
 
 export class CreateTodoDto {
   @ApiProperty({
@@ -25,4 +32,7 @@ export class CreateTodoDto {
   @IsBoolean()
   @IsOptional()
   readonly isCompleted?: boolean;
+
+  @IsEmpty({ message: 'you cannot pass user id' })
+  readonly user: User;
 }
