@@ -4,6 +4,7 @@ import { UpdateTodoDto } from './dto/update-todo.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Todo } from './schemas/todo.schema';
 import { Model } from 'mongoose';
+import { User } from 'src/users/schemas/user.schema';
 
 @Injectable()
 export class TodosService {
@@ -11,8 +12,9 @@ export class TodosService {
     @InjectModel(Todo.name) private readonly todoModel: Model<Todo>,
   ) {}
 
-  async create(createTodoDto: CreateTodoDto): Promise<Todo> {
-    const createTodo = new this.todoModel(createTodoDto);
+  async create(createTodoDto: CreateTodoDto, user: User): Promise<Todo> {
+    const data = Object.assign(createTodoDto, { user: user._id });
+    const createTodo = new this.todoModel(data);
     return createTodo.save();
   }
 

@@ -1,6 +1,7 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import mongoose, { HydratedDocument } from 'mongoose';
 import { ApiProperty } from '@nestjs/swagger';
+import { User } from 'src/users/schemas/user.schema';
 
 export type TodoDocument = HydratedDocument<Todo>;
 @Schema({ timestamps: { createdAt: true, updatedAt: false } })
@@ -25,6 +26,9 @@ export class Todo {
   })
   @Prop({ default: false })
   isCompleted: boolean;
+
+  @Prop({ type: mongoose.Schema.ObjectId, ref: 'User' })
+  user: User;
 }
 
 export const TodoSchema = SchemaFactory.createForClass(Todo);
