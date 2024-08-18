@@ -42,8 +42,6 @@ export class TodosService {
       query.createdAt = { ...query.createdAt, $lte: new Date(endDate) };
     }
 
-    console.log(query);
-
     const skip = (page - 1) * limit;
 
     const [todos, total] = await Promise.all([
