@@ -14,7 +14,7 @@ async function bootstrap() {
         const messages = validationErrors.map(
           (error) => `${Object.values(error.constraints).join(', ')}`,
         );
-        return new ValidationException(messages);
+        return new ValidationException(messages.join(', '));
       },
     }),
   );
@@ -35,7 +35,12 @@ async function bootstrap() {
     )
     .build();
   const document = SwaggerModule.createDocument(app, config);
-  SwaggerModule.setup('open_api', app, document);
+  SwaggerModule.setup('open_api', app, document, {
+    jsonDocumentUrl: 'open_api/json',
+    swaggerOptions: {
+      persistAuthorization: true, // This enables persistence in the session (Swagger feature)
+    },
+  });
   await app.listen(3000);
 }
 bootstrap();
