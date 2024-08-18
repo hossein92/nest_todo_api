@@ -55,7 +55,7 @@ export class AuthController {
     },
   })
   @ApiResponse({
-    status: 400,
+    status: 409,
     description: 'Invalid signup data or email already exists',
     schema: {
       example: {
