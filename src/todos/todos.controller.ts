@@ -22,6 +22,7 @@ import {
   ApiOkResponse,
   ApiOperation,
   ApiQuery,
+  ApiResponse,
   ApiTags,
 } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
@@ -30,21 +31,43 @@ import { User } from 'src/users/schemas/user.schema';
 import { QueryTodosDto } from './dto/query-todos.dto';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
+import { ValidateObjectId } from 'src/common/validation/validate-object-id.pipe';
 
-@UseGuards(AuthGuard())
-@ApiBearerAuth('access-token')
-@ApiTags('Todos')
-@Controller('todos')
+@UseGuards(AuthGuard()) // Guard to enforce user authentication
+@ApiBearerAuth('access-token') // Add bearer token authentication to Swagger
+@ApiTags('Todos') // Tag for grouping all `/todos` routes
+@Controller('todos') // Define the `TodosController`
 export class TodosController {
   constructor(private readonly todosService: TodosService) {}
 
+  // Create a new Todo
   @Post()
-  @ApiOperation({ description: 'Create a todo.' })
+  @ApiOperation({ description: 'Create a new todo item.' })
   @ApiCreatedResponse({
     description: 'The todo has been successfully created.',
     type: Todo,
   })
-  @UsePipes(new ValidationPipe({ transform: true }))
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid title or other bad request error',
+    schema: {
+      example: {
+        statusCode: 400,
+        message: 'title should not be empty, title must be a string',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+      },
+    },
+  })
+  @UsePipes(new ValidationPipe({ transform: true, whitelist: true }))
   async create(
     @Body() createTodoDto: CreateTodoDto,
     @GetUser() user: User,
@@ -52,23 +75,27 @@ export class TodosController {
     return this.todosService.create(createTodoDto, user);
   }
 
+  // Get a list of Todos with optional pagination and filters
   @Get()
-  @ApiOperation({ description: 'Get all Todo' })
+  @ApiOperation({
+    description:
+      'Retrieve all todo items with optional pagination and filtering.',
+  })
   @ApiOkResponse({
-    description: 'The Todo were successfully obtained.',
+    description: 'The todos were successfully retrieved.',
     type: [Todo],
   })
   @ApiQuery({
     name: 'page',
     required: false,
-    description: 'Page number for pagination',
+    description: 'Page number for pagination (default: 1).',
     type: Number,
     example: 1,
   })
   @ApiQuery({
     name: 'limit',
     required: false,
-    description: 'Number of todos per page',
+    description: 'Number of todos per page (default: 10).',
     type: Number,
     example: 10,
   })
@@ -76,22 +103,22 @@ export class TodosController {
     name: 'status',
     required: false,
     description:
-      'Filter by completion status (true for completed, false for incomplete)',
+      'Filter by completion status (true for completed, false for incomplete).',
     type: Boolean,
   })
   @ApiQuery({
     name: 'startDate',
     required: false,
-    description: 'Filter todos created on or after this date (YYYY-MM-DD)',
+    description: 'Filter todos created on or after this date (YYYY-MM-DD).',
     type: String,
     example: '2024-01-01',
   })
   @ApiQuery({
     name: 'endDate',
     required: false,
-    description: 'Filter todos created on or before this date (YYYY-MM-DD)',
+    description: 'Filter todos created on or before this date (YYYY-MM-DD).',
     type: String,
-    example: '2024-08-12',
+    example: '2024-12-31',
   })
   async findAll(@GetUser() user: User, @Query() query: QueryTodosDto) {
     const queryObject = plainToInstance(QueryTodosDto, query);
@@ -111,8 +138,8 @@ export class TodosController {
       startDate,
       endDate,
     );
-    const nextPage = page < result.totalPages ? +page + 1 : null;
-    const previousPage = page > 1 ? +page - 1 : null;
+    const nextPage = page < result.totalPages ? page + 1 : null;
+    const previousPage = page > 1 ? page - 1 : null;
 
     return {
       todos: result.todos,
@@ -125,26 +152,86 @@ export class TodosController {
     };
   }
 
+  // Get a specific Todo by its ID
   @Get(':id')
-  @ApiOperation({
-    description: 'Get a Todo by Id.',
-  })
+  @ApiOperation({ description: 'Retrieve a specific todo item by its ID.' })
   @ApiOkResponse({
-    description: 'The Todo was successfully obtained.',
+    description: 'The todo was successfully retrieved.',
     type: Todo,
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid ID format or other bad request error',
+    schema: {
+      example: {
+        status: 400,
+        message: '932794 is not a valid ObjectId',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Todo not found.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Todo with ID "66ba1416ba207f7f664e106b" not found',
+      },
+    },
+  })
+  @UsePipes(ValidateObjectId)
   async findOne(@Param('id') id: string, @GetUser() user: User): Promise<Todo> {
     return this.todosService.findOne(id, user);
   }
 
+  // Update a specific Todo by its ID
   @Patch(':id')
-  @ApiOperation({
-    description: 'Update a Todo by userId.',
-  })
+  @ApiOperation({ description: 'Update a specific todo item by its ID.' })
   @ApiOkResponse({
     description: 'The todo was successfully updated.',
     type: Todo,
   })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid ID format or other bad request error',
+    schema: {
+      example: {
+        status: 400,
+        message: '932794 is not a valid ObjectId',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Todo not found.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Todo with ID "66ba1416ba207f7f664e106b" not found',
+      },
+    },
+  })
+  @UsePipes(ValidateObjectId)
   async update(
     @Param('id') id: string,
     @Body() updateTodoDto: UpdateTodoDto,
@@ -153,7 +240,43 @@ export class TodosController {
     return this.todosService.update(id, updateTodoDto, user);
   }
 
+  // Delete a specific Todo by its ID
   @Delete(':id')
+  @ApiOperation({ description: 'Delete a specific todo item by its ID.' })
+  @ApiOkResponse({
+    description: 'The todo was successfully deleted.',
+  })
+  @ApiResponse({
+    status: 400,
+    description: 'Invalid ID format or other bad request error',
+    schema: {
+      example: {
+        status: 400,
+        message: '932794 is not a valid ObjectId',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 401,
+    description: 'Unauthorized.',
+    schema: {
+      example: {
+        statusCode: 401,
+        message: 'Unauthorized',
+      },
+    },
+  })
+  @ApiResponse({
+    status: 404,
+    description: 'Todo not found.',
+    schema: {
+      example: {
+        statusCode: 404,
+        message: 'Todo with ID "66ba1416ba207f7f664e106b" not found',
+      },
+    },
+  })
+  @UsePipes(ValidateObjectId)
   async remove(@Param('id') id: string, @GetUser() user: User): Promise<Todo> {
     return this.todosService.remove(id, user);
   }
