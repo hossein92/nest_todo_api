@@ -9,6 +9,7 @@ import { SignupDto } from './dto/signup.dto';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
+  // login user
   @Post('/login')
   @ApiOperation({ description: 'Log in a user and return a JWT token.' })
   @ApiBody({
@@ -38,6 +39,7 @@ export class AuthController {
     return this.authService.login(loginDto);
   }
 
+  // User signUp
   @Post('/signup')
   @ApiOperation({ description: 'Sign up a new user and return a JWT token.' })
   @ApiBody({
@@ -55,7 +57,7 @@ export class AuthController {
     },
   })
   @ApiResponse({
-    status: 400,
+    status: 409,
     description: 'Invalid signup data or email already exists',
     schema: {
       example: {

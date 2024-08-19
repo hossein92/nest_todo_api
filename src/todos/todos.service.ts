@@ -5,6 +5,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Todo } from './schemas/todo.schema';
 import { Model } from 'mongoose';
 import { User } from 'src/users/schemas/user.schema';
+import { validateObjectId } from 'src/common/validation/validate-object-id.util';
 
 @Injectable()
 export class TodosService {
@@ -13,9 +14,8 @@ export class TodosService {
   ) {}
 
   async create(createTodoDto: CreateTodoDto, user: User): Promise<Todo> {
-    const data = Object.assign(createTodoDto, { user: user._id });
-    const createTodo = new this.todoModel(data);
-    return createTodo.save();
+    const data = { ...createTodoDto, user: user._id };
+    return this.todoModel.create(data);
   }
 
   async findAll(
@@ -53,6 +53,7 @@ export class TodosService {
   }
 
   async findOne(id: string, user: User): Promise<Todo> {
+    validateObjectId(id); // Validate ObjectId here
     const todo = await this.todoModel
       .findOne({ _id: id, user: user._id })
       .exec();
@@ -67,6 +68,8 @@ export class TodosService {
     updateTodoDto: UpdateTodoDto,
     user: User,
   ): Promise<Todo> {
+    validateObjectId(id); // Validate ObjectId here
+
     const existTodo = await this.todoModel
       .findByIdAndUpdate({ _id: id, user: user._id }, updateTodoDto, {
         new: true,
@@ -80,6 +83,7 @@ export class TodosService {
   }
 
   async remove(id: string, user: User): Promise<Todo> {
+    validateObjectId(id); // Validate ObjectId here
     const todo = await this.todoModel
       .findByIdAndDelete({ _id: id, user: user._id })
       .exec();

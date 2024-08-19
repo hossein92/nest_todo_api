@@ -23,5 +23,5 @@ export class UpdateTodoDto extends PartialType(CreateTodoDto) {
   readonly isCompleted?: boolean;
 
   @IsEmpty({ message: 'you cannot pass user id' })
-  readonly user: User;
+  readonly user?: User | string;
 }
