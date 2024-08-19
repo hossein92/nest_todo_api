@@ -23,7 +23,7 @@ export class UsersService {
   }
 
   async singUpUser(signupDto: SignupDto): Promise<User> {
-    const createUser = new this.userModel(signupDto);
-    return createUser.save();
+    const createUser = await this.userModel.create(signupDto);
+    return createUser;
   }
 }
