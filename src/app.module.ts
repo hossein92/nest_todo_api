@@ -1,19 +1,32 @@
-import { Module } from '@nestjs/common';
+import { Logger, Module } from '@nestjs/common';
 
 import { MongooseModule } from '@nestjs/mongoose';
 
 import { TodosModule } from './todos/todos.module';
-import { ConfigModule } from '@nestjs/config';
+import { ConfigModule, ConfigService } from '@nestjs/config';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 @Module({
   imports: [
-    ConfigModule.forRoot(),
-    MongooseModule.forRoot(process.env.MONGO_URL),
+    ConfigModule.forRoot({
+      isGlobal: true,
+      envFilePath: ['.env', '.env.test'],
+    }),
+    // MongooseModule.forRoot(process.env.MONGO_URL),
+    MongooseModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: async (configService: ConfigService) => {
+        const mongoUrl = configService.get<string>('MONGO_URL');
+        Logger.log(`Connecting to MongoDB at ${mongoUrl}`);
+        return { uri: mongoUrl };
+      },
+      inject: [ConfigService],
+    }),
     TodosModule,
     AuthModule,
     UsersModule,
   ],
+
   controllers: [],
   providers: [],
 })
