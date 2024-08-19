@@ -33,7 +33,6 @@ import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
 import { ValidateObjectId } from 'src/common/validation/validate-object-id.pipe';
 
-@UseGuards(AuthGuard()) // Guard to enforce user authentication
 @ApiBearerAuth('access-token') // Add bearer token authentication to Swagger
 @ApiTags('Todos') // Tag for grouping all `/todos` routes
 @Controller('todos') // Define the `TodosController`
@@ -42,6 +41,7 @@ export class TodosController {
 
   // Create a new Todo
   @Post()
+  @UseGuards(AuthGuard())
   @ApiOperation({ description: 'Create a new todo item.' })
   @ApiCreatedResponse({
     description: 'The todo has been successfully created.',
@@ -77,6 +77,7 @@ export class TodosController {
 
   // Get a list of Todos with optional pagination and filters
   @Get()
+  @UseGuards(AuthGuard())
   @ApiOperation({
     description:
       'Retrieve all todo items with optional pagination and filtering.',
@@ -154,6 +155,7 @@ export class TodosController {
 
   // Get a specific Todo by its ID
   @Get(':id')
+  @UseGuards(AuthGuard())
   @ApiOperation({ description: 'Retrieve a specific todo item by its ID.' })
   @ApiOkResponse({
     description: 'The todo was successfully retrieved.',
@@ -196,6 +198,7 @@ export class TodosController {
 
   // Update a specific Todo by its ID
   @Patch(':id')
+  @UseGuards(AuthGuard())
   @ApiOperation({ description: 'Update a specific todo item by its ID.' })
   @ApiOkResponse({
     description: 'The todo was successfully updated.',
@@ -242,6 +245,7 @@ export class TodosController {
 
   // Delete a specific Todo by its ID
   @Delete(':id')
+  @UseGuards(AuthGuard())
   @ApiOperation({ description: 'Delete a specific todo item by its ID.' })
   @ApiOkResponse({
     description: 'The todo was successfully deleted.',
