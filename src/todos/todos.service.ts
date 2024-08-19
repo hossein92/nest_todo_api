@@ -13,9 +13,8 @@ export class TodosService {
   ) {}
 
   async create(createTodoDto: CreateTodoDto, user: User): Promise<Todo> {
-    const data = Object.assign(createTodoDto, { user: user._id });
-    const createTodo = new this.todoModel(data);
-    return createTodo.save();
+    const data = { ...createTodoDto, user: user._id };
+    return this.todoModel.create(data);
   }
 
   async findAll(
