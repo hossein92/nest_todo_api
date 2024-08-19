@@ -31,7 +31,6 @@ import { User } from 'src/users/schemas/user.schema';
 import { QueryTodosDto } from './dto/query-todos.dto';
 import { validate } from 'class-validator';
 import { plainToInstance } from 'class-transformer';
-import { ValidateObjectId } from 'src/common/validation/validate-object-id.pipe';
 
 @ApiBearerAuth('access-token') // Add bearer token authentication to Swagger
 @ApiTags('Todos') // Tag for grouping all `/todos` routes
@@ -191,7 +190,7 @@ export class TodosController {
       },
     },
   })
-  @UsePipes(ValidateObjectId)
+  @UsePipes()
   async findOne(@Param('id') id: string, @GetUser() user: User): Promise<Todo> {
     return this.todosService.findOne(id, user);
   }
@@ -234,10 +233,10 @@ export class TodosController {
       },
     },
   })
-  @UsePipes(ValidateObjectId)
+  @UsePipes()
   async update(
-    @Param('id') id: string,
-    @Body() updateTodoDto: UpdateTodoDto,
+    @Param('id') id: string, // This should be the ID extracted from the URL
+    @Body() updateTodoDto: UpdateTodoDto, // This should be the body of the request
     @GetUser() user: User,
   ): Promise<Todo> {
     return this.todosService.update(id, updateTodoDto, user);
@@ -280,7 +279,7 @@ export class TodosController {
       },
     },
   })
-  @UsePipes(ValidateObjectId)
+  @UsePipes()
   async remove(@Param('id') id: string, @GetUser() user: User): Promise<Todo> {
     return this.todosService.remove(id, user);
   }

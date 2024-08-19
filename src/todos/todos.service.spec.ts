@@ -7,7 +7,9 @@ import { NotFoundException } from '@nestjs/common';
 import { CreateTodoDto } from './dto/create-todo.dto';
 import { UpdateTodoDto } from './dto/update-todo.dto';
 import { User } from 'src/users/schemas/user.schema';
+import { validateObjectId } from 'src/common/validation/validate-object-id.util';
 
+jest.mock('src/common/validation/validate-object-id.util'); // Mock the utility function
 const mockTodo = {
   _id: 'todoId',
   title: 'Test Todo',
@@ -37,7 +39,7 @@ const mockTodoModel = {
 describe('TodosService', () => {
   let service: TodosService;
   let model: Model<Todo>;
-
+  let mockValidateObjectId: jest.Mock;
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
       providers: [
@@ -51,6 +53,7 @@ describe('TodosService', () => {
 
     service = module.get<TodosService>(TodosService);
     model = module.get<Model<Todo>>(getModelToken(Todo.name));
+    mockValidateObjectId = validateObjectId as jest.Mock;
   });
 
   it('should be defined', () => {
@@ -93,6 +96,7 @@ describe('TodosService', () => {
 
   describe('findOne', () => {
     it('should return a todo if found', async () => {
+      mockValidateObjectId.mockImplementationOnce(() => true); // Simulate successful validation
       jest.spyOn(model, 'findOne').mockReturnValue({
         exec: jest.fn().mockResolvedValueOnce(mockTodo),
       } as any);
@@ -102,6 +106,7 @@ describe('TodosService', () => {
     });
 
     it('should throw NotFoundException if todo not found', async () => {
+      mockValidateObjectId.mockImplementationOnce(() => true); // Simulate successful validation
       jest.spyOn(model, 'findOne').mockReturnValue({
         exec: jest.fn().mockResolvedValueOnce(null),
       } as any);
@@ -114,6 +119,7 @@ describe('TodosService', () => {
 
   describe('update', () => {
     it('should update and return the todo', async () => {
+      mockValidateObjectId.mockImplementationOnce(() => true); // Simulate successful validation
       const updateTodoDto: UpdateTodoDto = { title: 'Updated Title' };
       jest.spyOn(model, 'findByIdAndUpdate').mockReturnValue({
         exec: jest
@@ -130,6 +136,7 @@ describe('TodosService', () => {
     });
 
     it('should throw NotFoundException if todo not found', async () => {
+      mockValidateObjectId.mockImplementationOnce(() => true); // Simulate successful validation
       jest.spyOn(model, 'findByIdAndUpdate').mockReturnValue({
         exec: jest.fn().mockResolvedValueOnce(null),
       } as any);
@@ -142,6 +149,7 @@ describe('TodosService', () => {
 
   describe('remove', () => {
     it('should delete the todo and return it', async () => {
+      mockValidateObjectId.mockImplementationOnce(() => true); // Simulate successful validation
       jest.spyOn(model, 'findByIdAndDelete').mockReturnValue({
         exec: jest.fn().mockResolvedValueOnce(mockTodo),
       } as any);
@@ -151,6 +159,7 @@ describe('TodosService', () => {
     });
 
     it('should throw NotFoundException if todo not found', async () => {
+      mockValidateObjectId.mockImplementationOnce(() => true); // Simulate successful validation
       jest.spyOn(model, 'findByIdAndDelete').mockReturnValue({
         exec: jest.fn().mockResolvedValueOnce(null),
       } as any);
