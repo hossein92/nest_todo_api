@@ -21,7 +21,7 @@ services:
       - .env.production
     depends_on:
       - mongo
-    command: npm run start:stage
+    command: npm run start:production
 
   mongo:
     image: mongo:7.0
