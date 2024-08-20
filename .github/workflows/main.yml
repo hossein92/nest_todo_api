@@ -14,7 +14,7 @@ jobs:
 
     services:
       mongodb:
-        image: mongo:4.4.6
+        image: mongo:5.0.7
         env:
           MONGO_INITDB_ROOT_USERNAME: admin
           MONGO_INITDB_ROOT_PASSWORD: admin
@@ -37,7 +37,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v2
         with:
-          node-version: '20'  # Ensure you set this to the Node.js version required by your project
+          node-version: '20' # Ensure you set this to the Node.js version required by your project
 
       - name: Install dependencies
         run: npm install
@@ -56,7 +56,6 @@ jobs:
 
       - name: Run tests
         run: npm run test
-  
 
       - name: Build project
         run: npm run build
