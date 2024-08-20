@@ -1,73 +1,166 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+# NestJS Todo Application with MongoDB and Docker
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
+## Overview
 
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
+This project is a NestJS application with MongoDB as the database, containerized using Docker. The application includes multiple environments (development, staging, and production) with environment-specific configurations.
 
-## Description
+## Features
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+- **Authentication:** JWT-based authentication.
+- **Todos Management:** Create, update, delete, and retrieve todos.
+- **MongoDB:** Integrated with MongoDB for data persistence.
+- **Caching:** Caching implemented using `@nestjs/cache-manager`.
+- **Docker:** Fully containerized application for easy deployment.
+- **Environment Configuration:** Environment-specific configurations using `.env` files.
 
-## Installation
+## Prerequisites
 
-```bash
-$ npm install
-```
+- **Docker:** Make sure Docker is installed on your machine.
+- **Docker Compose:** Ensure Docker Compose is installed for orchestrating multi-container Docker applications.
 
-## Running the app
+## Project Structure
 
-```bash
-# development
-$ npm run start
+- **`src/`**: Contains the source code of the application.
+  - **`auth/`**: Authentication module and related files.
+  - **`todos/`**: Todos module and related files.
+  - **`users/`**: Users module and related files.
+  - **`common/`**: Common utilities and services.
+- **`Dockerfile`**: Dockerfile for building the application container.
+- **`docker-compose.yml`**: Docker Compose configuration for different environments.
+- **`.env.*`**: Environment-specific configuration files.
 
-# watch mode
-$ npm run start:dev
+## Getting Started
 
-# production mode
-$ npm run start:prod
-```
-
-## Test
+### Cloning the Repository
 
 ```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
+git clone https://github.com/your-username/your-repo-name.git
+cd nest_todo_api
 ```
 
-## Support
+### Setting Up Environment Variables
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+Create environment-specific `.env` files (e.g., `.env.stage`, `.env.production`) in the root directory:
 
-## Stay in touch
+**Example `.env.stage`:**
 
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+```env
+MONGO_URL=mongodb://mongo:27017/stage_db
+NODE_ENV=stage
+JWT_SECRET=your_jwt_secret
+```
+
+**Example `.env.development`:**
+
+```env
+MONGO_URL=mongodb://mongo:27017/development_db
+NODE_ENV=development
+JWT_SECRET=your_jwt_secret
+```
+
+**Example `.env.production`:**
+
+```env
+MONGO_URL=mongodb://mongo:27017/production_db
+NODE_ENV=production
+JWT_SECRET=your_jwt_secret
+```
+
+### Running the Application
+
+You can run the application in different environments using Docker Compose.
+
+#### Development
+
+```bash
+docker-compose up --build app-development
+```
+
+#### Staging
+
+```bash
+docker-compose up --build app-staging
+```
+
+#### Production
+
+```bash
+docker-compose up --build app-production
+```
+
+### Accessing the Application
+
+- **Development:** `http://localhost:3002`
+- **Staging:** `http://localhost:3001`
+- **Production:** `http://localhost:3000`
+
+### Testing
+
+**Database Handling**: The test ensures that your MongoDB database is correctly initialized and cleaned up after tests.
+
+**Create `.env.test`:**
+
+```env
+MONGO_URL=mongodb://mongo:27017/test_db
+NODE_ENV=production
+JWT_SECRET=your_jwt_secret
+```
+
+Run unit tests using Jest:
+
+```bash
+npm run test
+```
+
+Run end-to-end tests:
+
+```bash
+npm run test:e2e
+```
+
+### Caching
+
+Caching is implemented using `@nestjs/cache-manager`. The cache is automatically invalidated when creating, updating, or deleting a todo.
+
+### Database Indexing
+
+For performance optimization, database indexes have been implemented. Ensure MongoDB collections are indexed according to your application's requirements.
+
+### Docker Cleanup
+
+To stop and remove all running containers:
+
+```bash
+docker-compose down
+```
+
+To remove unused Docker images and containers:
+
+```bash
+docker system prune -a
+```
+
+## Troubleshooting
+
+- **MongoDB Connection Issues:** Ensure that the `MONGO_URL` in your `.env` files is correctly set and that the MongoDB service is running.
+- **Port Conflicts:** If the ports (3000, 3001, 3002) are already in use, modify the `docker-compose.yml` file to use different ports.
+
+## API Documentation with Swagger
+
+This project uses [Swagger](https://swagger.io/) to generate interactive API documentation.
+
+### Accessing Swagger UI
+
+After running the application, you can access the Swagger UI in your web browser at the following URLs, depending on the environment:
+
+- **Development:** `http://localhost:3002/open_api`
+- **Staging:** `http://localhost:3001/open_api`
+- **Production:** `http://localhost:3000/open_api`
+
+## Contributing
+
+Feel free to fork this repository and submit pull requests. Contributions are welcome!
 
 ## License
 
-Nest is [MIT licensed](LICENSE).
+This project is licensed under the MIT License.

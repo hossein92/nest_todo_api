@@ -11,7 +11,7 @@ import { CacheModule } from '@nestjs/cache-manager';
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
-      envFilePath: ['.env', '.env.test'],
+      envFilePath: ['.env', '.env.test', '.env.stage', '.env.production'],
     }),
     // Cache configure
     CacheModule.register({
