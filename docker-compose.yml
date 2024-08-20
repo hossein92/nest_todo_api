@@ -1,0 +1,34 @@
+services:
+  app-staging:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3001:3000'
+    env_file:
+      - .env.stage
+    depends_on:
+      - mongo
+    command: npm run start:stage
+    # docker config for production
+  app-production:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3002:3000'
+    env_file:
+      - .env.production
+    depends_on:
+      - mongo
+    command: npm run start:stage
+
+  mongo:
+    image: mongo:7.0
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongo_data:/data/db
+
+volumes:
+  mongo_data:
