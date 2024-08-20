@@ -145,6 +145,18 @@ docker system prune -a
 - **MongoDB Connection Issues:** Ensure that the `MONGO_URL` in your `.env` files is correctly set and that the MongoDB service is running.
 - **Port Conflicts:** If the ports (3000, 3001, 3002) are already in use, modify the `docker-compose.yml` file to use different ports.
 
+## API Documentation with Swagger
+
+This project uses [Swagger](https://swagger.io/) to generate interactive API documentation.
+
+### Accessing Swagger UI
+
+After running the application, you can access the Swagger UI in your web browser at the following URLs, depending on the environment:
+
+- **Development:** `http://localhost:3002/open_api`
+- **Staging:** `http://localhost:3001/open_api`
+- **Production:** `http://localhost:3000/open_api`
+
 ## Contributing
 
 Feel free to fork this repository and submit pull requests. Contributions are welcome!

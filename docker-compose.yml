@@ -1,4 +1,5 @@
 services:
+  # docker config for staging
   app-staging:
     build:
       context: .
@@ -10,7 +11,19 @@ services:
     depends_on:
       - mongo
     command: npm run start:stage
-    # docker config for production
+  # docker config for development
+  app-development:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - '3000:3000'
+    env_file:
+      - .env.development
+    depends_on:
+      - mongo
+    command: npm run start:development
+  # docker config for production
   app-production:
     build:
       context: .
