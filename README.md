@@ -34,13 +34,13 @@ This project is a NestJS application with MongoDB as the database, containerized
 ### Cloning the Repository
 
 ```bash
-git clone https://github.com/your-username/your-repo-name.git
+git clone https://github.com/hossein92/nest_todo_api.git
 cd nest_todo_api
 ```
 
 ### Setting Up Environment Variables
 
-Create environment-specific `.env` files (e.g., `.env.stage`, `.env.production`) in the root directory:
+Create environment-specific `.env` files (e.g., `.env.stage`, `.env.development`, `.env.production`) in the root directory:
 
 **Example `.env.stage`:**
 
